@@ -7,6 +7,7 @@ import os
 
 register = template.Library()
 
+
 @register.filter
 def format_stack_trace(value):
     stack_trace = []
@@ -20,14 +21,17 @@ def format_stack_trace(value):
         stack_trace.append(fmt.format(*params))
     return mark_safe('\n'.join(stack_trace))
 
+
 @register.filter
 def embolden_file(path):
     head, tail = os.path.split(escape(path))
     return mark_safe(os.sep.join([head, '<strong>{0}</strong>'.format(tail)]))
 
+
 @register.filter
 def format_dict(value, width=60):
     return pprint.pformat(value, width=int(width))
+
 
 @register.filter
 def highlight(value, language):
