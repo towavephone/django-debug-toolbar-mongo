@@ -1,3 +1,5 @@
+import uuid
+
 from django.template import Template, Context
 from django.utils.safestring import mark_safe
 from django.template.loader import render_to_string
@@ -21,30 +23,32 @@ class MongoDebugPanel(Panel):
     """Panel that shows information about MongoDB operations.
     """
     name = 'MongoDB'
-    has_content = True
     template = 'mongo-panel.html'
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         operation_tracker.install_tracker()
 
-    def process_request(self, request):
-        operation_tracker.reset()
+    # def process_request(self, request):
+    #     # operation_tracker.reset()
+    #     self.record_stats({
+    #         'queries': operation_tracker.queries,
+    #         'inserts': operation_tracker.inserts,
+    #         'updates': operation_tracker.updates,
+    #         'removes': operation_tracker.removes
+    #     })
 
-        self.record_stats({
-            'queries': operation_tracker.queries,
-            'inserts': operation_tracker.inserts,
-            'updates': operation_tracker.updates,
-            'removes': operation_tracker.removes
-        })
+    #     response = super(MongoDebugPanel, self).process_request(request)
 
-        response = super(MongoDebugPanel, self).process_request(request)
+    #     return response
 
-        return response
+    def title(self):
+        return 'MongoDB Operations'
 
     def nav_title(self):
         return 'MongoDB'
 
+    @property
     def nav_subtitle(self):
         def fun(x, y): return (x, len(y), '%.2f' % sum(z['time'] for z in y))
         ctx = {'operations': [], 'count': 0, 'time': 0}
@@ -72,9 +76,6 @@ class MongoDebugPanel(Panel):
         ctx['time'] = '%.2f' % ctx['time']
 
         return mark_safe(Template(_NAV_SUBTITLE_TPL).render(Context(ctx)))
-
-    def title(self):
-        return 'MongoDB Operations'
 
     @property
     def content(self):

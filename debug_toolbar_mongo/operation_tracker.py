@@ -86,7 +86,6 @@ def _update(collection_self, spec, document, upsert=False,
         spec,
         document,
         upsert=upsert,
-        safe=safe,
         multi=multi,
         **kwargs
     )
@@ -98,7 +97,6 @@ def _update(collection_self, spec, document, upsert=False,
         'upsert': upsert,
         'multi': multi,
         'spec': spec,
-        'safe': safe,
         'time': total_time,
         'stack_trace': _get_stacktrace(),
     })
@@ -132,6 +130,7 @@ def _remove(collection_self, spec_or_id, safe=False, **kwargs):
 
 @functools.wraps(_original_methods['refresh'])
 def _cursor_refresh(cursor_self):
+    print(len(queries), len(inserts), len(updates), len(removes))
     # Look up __ private instance variables
     def privar(name):
         return getattr(cursor_self, '_Cursor__{0}'.format(name))

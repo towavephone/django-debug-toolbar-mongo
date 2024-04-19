@@ -1,5 +1,6 @@
-from django.conf.urls.defaults import *
+from django.urls import re_path, include
 
-urlpatterns = patterns('',
-    url(r'^$', 'views.index', name='index'),
+urlpatterns = (
+    '',
+    re_path(r'^$', 'views'),
 )

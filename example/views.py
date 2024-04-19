@@ -1,10 +1,8 @@
-from django.http import HttpResponse
-from django.core.urlresolvers import reverse
-from django.shortcuts import render_to_response
+from django.shortcuts import render
 
 import pymongo
 
-conn = pymongo.Connection()
+conn = pymongo.MongoClient()
 db = conn.debug_test
 
 def index(request):
@@ -33,5 +31,5 @@ def index(request):
     db.test.insert({'name': 'test2'}, safe=True)
     db.test.update({'name': 'test2'}, {'age': 1}, upsert=True)
     db.test.remove({'name': 'test1'})
-    return render_to_response('index.html')
+    return render('index.html')
 
