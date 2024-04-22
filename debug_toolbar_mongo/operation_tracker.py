@@ -4,6 +4,7 @@ import inspect
 import os
 import socketserver
 
+from collections import deque
 import django
 from django.conf import settings
 
@@ -22,10 +23,13 @@ _original_methods = {
     'refresh': pymongo.cursor.Cursor._refresh,
 }
 
-queries = []
-inserts = []
-updates = []
-removes = []
+DEBUG_TOOLBAR_MONGO_MAX_OPERATION_SIZE = getattr(
+    settings, 'DEBUG_TOOLBAR_MONGO_MAX_OPERATION_SIZE', 20)
+
+queries = deque(maxlen=DEBUG_TOOLBAR_MONGO_MAX_OPERATION_SIZE)
+inserts = deque(maxlen=DEBUG_TOOLBAR_MONGO_MAX_OPERATION_SIZE)
+updates = deque(maxlen=DEBUG_TOOLBAR_MONGO_MAX_OPERATION_SIZE)
+removes = deque(maxlen=DEBUG_TOOLBAR_MONGO_MAX_OPERATION_SIZE)
 
 WANT_STACK_TRACE = getattr(settings, 'DEBUG_TOOLBAR_MONGO_STACKTRACES', True)
 
@@ -86,7 +90,6 @@ def _update(collection_self, spec, document, upsert=False,
         spec,
         document,
         upsert=upsert,
-        safe=safe,
         multi=multi,
         **kwargs
     )
@@ -98,7 +101,6 @@ def _update(collection_self, spec, document, upsert=False,
         'upsert': upsert,
         'multi': multi,
         'spec': spec,
-        'safe': safe,
         'time': total_time,
         'stack_trace': _get_stacktrace(),
     })

@@ -21,30 +21,19 @@ class MongoDebugPanel(Panel):
     """Panel that shows information about MongoDB operations.
     """
     name = 'MongoDB'
-    has_content = True
     template = 'mongo-panel.html'
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         operation_tracker.install_tracker()
 
-    def process_request(self, request):
-        operation_tracker.reset()
-
-        self.record_stats({
-            'queries': operation_tracker.queries,
-            'inserts': operation_tracker.inserts,
-            'updates': operation_tracker.updates,
-            'removes': operation_tracker.removes
-        })
-
-        response = super(MongoDebugPanel, self).process_request(request)
-
-        return response
+    def title(self):
+        return 'MongoDB Operations'
 
     def nav_title(self):
         return 'MongoDB'
 
+    @property
     def nav_subtitle(self):
         def fun(x, y): return (x, len(y), '%.2f' % sum(z['time'] for z in y))
         ctx = {'operations': [], 'count': 0, 'time': 0}
@@ -73,14 +62,11 @@ class MongoDebugPanel(Panel):
 
         return mark_safe(Template(_NAV_SUBTITLE_TPL).render(Context(ctx)))
 
-    def title(self):
-        return 'MongoDB Operations'
-
     @property
     def content(self):
         context = self.get_stats()
-        context['queries'] = operation_tracker.queries
-        context['inserts'] = operation_tracker.inserts
-        context['updates'] = operation_tracker.updates
-        context['removes'] = operation_tracker.removes
+        context['queries'] = reversed(operation_tracker.queries)
+        context['inserts'] = reversed(operation_tracker.inserts)
+        context['updates'] = reversed(operation_tracker.updates)
+        context['removes'] = reversed(operation_tracker.removes)
         return render_to_string(self.template, context)
